@@ -4,7 +4,7 @@
       "Joel Berger <joel.a.berger@gmail.com>"
    ],
    "dynamic_config" : 1,
-   "generated_by" : "Module::Build version 0.4203",
+   "generated_by" : "Module::Build version 0.4205",
    "license" : [
       "perl_5"
    ],
@@ -21,6 +21,7 @@
       },
       "runtime" : {
          "requires" : {
+            "File::HomeDir" : "0",
             "Mojolicious" : "4.0"
          }
       }
@@ -28,13 +29,16 @@
    "provides" : {
       "Mojolicious::Command::nopaste" : {
          "file" : "lib/Mojolicious/Command/nopaste.pm",
-         "version" : "0.03"
+         "version" : "0.04"
       },
       "Mojolicious::Command::nopaste::Service" : {
          "file" : "lib/Mojolicious/Command/nopaste/Service.pm"
       },
       "Mojolicious::Command::nopaste::Service::debian" : {
          "file" : "lib/Mojolicious/Command/nopaste/Service/debian.pm"
+      },
+      "Mojolicious::Command::nopaste::Service::gist" : {
+         "file" : "lib/Mojolicious/Command/nopaste/Service/gist.pm"
       },
       "Mojolicious::Command::nopaste::Service::mathbin" : {
          "file" : "lib/Mojolicious/Command/nopaste/Service/mathbin.pm"
@@ -61,5 +65,5 @@
          "url" : "https://github.com/jberger/Mojolicious-Command-nopaste"
       }
    },
-   "version" : "0.03"
+   "version" : "0.04"
 }

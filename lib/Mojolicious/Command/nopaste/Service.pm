@@ -13,10 +13,10 @@ USAGE:
 OPTIONS:
   Note that not all options are relevant for all services.
 
-  --channel, -c       The channel for the pastebin's pastebot if relevent
+  --channel, -c       The channel for the service's pastebot or to post via Mojo::IRC
   --copy, -x          Copy the resulting URL to the clipboard (requires Clipboard.pm)
   --description, -d   Description or title of the nopaste
-  --name, -n          Your name or nick
+  --name, -n          Your name or nick, used for the pastebin and/or IRC
   --language, -l      Language for syntax highlighting, defaults to 'perl'
   --open, -o          Open a browser to the url (requires Browser::Open)
   --paste, -p         Read contents from clipboard (requires Clipboard.pm)
@@ -35,7 +35,7 @@ has usage => sub {
 };
 
 has [qw/channel name desc service_usage token/];
-has [qw/copy open private/] => 0;
+has [qw/copy open private irc_handled/] => 0;
 has clip => sub { 
   die "Clipboard module not available. Do you need to install it?\n"
     unless eval 'use Clipboard; 1';
@@ -67,9 +67,12 @@ sub run {
   say $url;
   $self->clip->copy($url) if $self->copy;
   if ($self->open) {
-    die "Browser::Open module not available. Do you need to install it?\n?"
+    die "Browser::Open module not available. Do you need to install it?\n"
       unless eval { require Browser::Open; 1 };
     Browser::Open::open_browser($url);
+  }
+  if ($self->channel and not $self->irc_handled) {
+    $self->post_to_irc($url);
   }
 }
 
@@ -90,6 +93,50 @@ sub slurp {
   local $/; 
   local @ARGV = @files;
   return decode 'UTF-8', <>;
+}
+
+sub post_to_irc {
+  my ($self, $paste) = @_;
+  die "This service requires Mojo::IRC to post to IRC, but it is not available. Do you need to install it?\n"
+    unless eval { require Mojo::IRC; 1 };
+  require Mojo::IOLoop;
+  require Mojo::URL;
+
+  my $url = Mojo::URL->new($self->channel);
+  my $chan = $url->fragment || $url->path->[-1];
+  die "Could not parse IRC channel\n" unless $chan;
+  my $server = $url->host_port || 'irc.perl.org:6667';
+  my $irc = Mojo::IRC->new(server => $server, nick => 'MojoNoPaste', user => 'MojoNoPaste');
+  $irc->register_default_event_handlers;
+
+  my $name = $self->name || 'someone';
+
+  my $err;
+  my $catch = sub { $err = $_[1]; Mojo::IOLoop->stop };
+  $irc->on(error     => $catch);
+  $irc->on(irc_error => $catch);
+
+  $irc->on(irc_join => sub {
+    my ($irc, $message) = @_;
+    my $chan = $message->{params}[0];
+    my $delay = Mojo::IOLoop->delay(
+      sub { $irc->write( privmsg => $chan, ":$name pasted $paste", shift->begin ) },
+      sub { $irc->disconnect( shift->begin ) },
+      sub { Mojo::IOLoop->stop }, 
+    );
+    $delay->on(error => $catch);
+  });
+
+  $irc->connect(sub{
+    my ($irc, $err) = @_;
+    die $err if $err;
+    say 'Connected to IRC';
+    $irc->write(join => "#$chan");
+  });
+
+  Mojo::IOLoop->start;
+  
+  die $err if $err;
 }
 
 sub _xclip_copy {

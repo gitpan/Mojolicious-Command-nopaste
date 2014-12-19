@@ -6,7 +6,7 @@ build_requires: {}
 configure_requires:
   Module::Build: '0.38'
 dynamic_config: 1
-generated_by: 'Module::Build version 0.4205, CPAN::Meta::Converter version 2.140640'
+generated_by: 'Module::Build version 0.421, CPAN::Meta::Converter version 2.143240'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -15,7 +15,7 @@ name: Mojolicious-Command-nopaste
 provides:
   Mojolicious::Command::nopaste:
     file: lib/Mojolicious/Command/nopaste.pm
-    version: '0.06'
+    version: '0.07'
   Mojolicious::Command::nopaste::Service:
     file: lib/Mojolicious/Command/nopaste/Service.pm
   Mojolicious::Command::nopaste::Service::debian:
@@ -28,6 +28,8 @@ provides:
     file: lib/Mojolicious/Command/nopaste/Service/pastie.pm
   Mojolicious::Command::nopaste::Service::shadowcat:
     file: lib/Mojolicious/Command/nopaste/Service/shadowcat.pm
+  Mojolicious::Command::nopaste::Service::sprunge:
+    file: lib/Mojolicious/Command/nopaste/Service/sprunge.pm
   Mojolicious::Command::nopaste::Service::ubuntu:
     file: lib/Mojolicious/Command/nopaste/Service/ubuntu.pm
 requires:
@@ -37,4 +39,4 @@ resources:
   bugtracker: https://github.com/jberger/Mojolicious-Command-nopaste/issues
   license: http://dev.perl.org/licenses/
   repository: https://github.com/jberger/Mojolicious-Command-nopaste
-version: '0.06'
+version: '0.07'
